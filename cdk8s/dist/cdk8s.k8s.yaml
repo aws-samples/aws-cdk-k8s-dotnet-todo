@@ -1,0 +1,31 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: cdk8s-todo-app-service-4b26805b
+spec:
+  ports:
+    - port: 80
+      targetPort: 8080
+  selector:
+    app: cdk8stodoappE8635BF5
+  type: LoadBalancer
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: cdk8s-todo-app-deployment-62642d7c
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: cdk8stodoappE8635BF5
+  template:
+    metadata:
+      labels:
+        app: cdk8stodoappE8635BF5
+    spec:
+      containers:
+        - image: REDACTED.dkr.ecr.us-east-1.amazonaws.com/todo-app:latest
+          name: app
+          ports:
+            - containerPort: 8080
