@@ -74,7 +74,7 @@ We will use the following steps to provision the infrastructure (and services) a
 The git source provided above has a  “cdk”, “webapi” and a “cdk8s” folder. “webapi” has the necessary .NET Web API solution. We will use the AWS CDK commands to build the infrastructure and deploy the webapi into EKS. cdk8s code provided (using Python language) defines our kubernetes chart which creates a webservice (k8s Service and Deployment). 
 
 Once the code is downloaded, please take a moment to see how CDK provides a simpler implementation for spinning up an infrastructure using C# code. You may use [Visual Studio Code](https://aws.amazon.com/visualstudiocode/) or your favorite choice of IDE to open the folder aws-cdk-k8s-dotnet-todo).
-Open the file “/aws-cdk-k8s-dotnet-todo/cdk8/main.py”. Code below (provided a snippet from the github solution) spins up a VPC for the required Cidr and number of availability zones. Another snippet (below) creates a kubernetes chart and creates a webservice.
+Open the file “/aws-cdk-k8s-dotnet-todo/cdk/src/EksCdk/EksCdkStack.cs”. Code below (provided a snippet from the github solution) spins up a VPC for the required Cidr and number of availability zones. Similarly Open the file “/aws-cdk-k8s-dotnet-todo/cdk8/main.py”. Below snippet creates a kubernetes chart and creates a webservice.
 
 NOTE: Make sure to replace <YOUR_ACCOUNT_NUMBER> with your AWS account number (where you are trying to deploy/run this application).
 
@@ -88,12 +88,12 @@ Code below (provided a snippet from the github solution) creates a Chart and cre
 from constructs import Construct
 from cdk8s import App, Chart
 from imports import k8s
-from webservice import webservice
+from webservice import WebService
 class MyChart(Chart):
     def __init__(self, scope: Construct, ns: str):
         super().__init__(scope, ns)
         # define resources here
-        webservice(self, 'todo-app', image='<YOUR_ACCOUNT_NUMBER>.dkr.ecr.us-east-1.amazonaws.com/todo-app:latest', replicas=1)
+        WebService(self, 'todo-app', image='<YOUR_ACCOUNT_NUMBER>.dkr.ecr.us-east-1.amazonaws.com/todo-app:latest', replicas=1)
 ```
 
 
@@ -107,7 +107,6 @@ var cluster = new Cluster(this, Constants.CLUSTER_ID, new ClusterProps {
         Version = KubernetesVersion.V1_16,
         KubectlEnabled = true,
         DefaultCapacity = 0,
-        DefaultCapacityType = DefaultCapacityType.NODEGROUP,
         Vpc = vpc                
     });
 ```
@@ -226,8 +225,8 @@ Stack creation creates close to 44 resources including a VPC. Some of them are p
 
 At the end of this step, you will create the Amazon Aurora DB table and the EKS Cluster exposed with a Classic LoadBalancer where the .NET Core Web API is deployed & exposed to the outside world. The output of the stack returns the following:
 
-* HealthCheckUrl – http://<your_ALB>.us-east-1.elb.amazonaws.com/api/values
-* Web ApiUrl – http://<your_ALB>.us-east-1.elb.amazonaws.com/api/todo
+* HealthCheckUrl – http://<your_lb_url>/api/values
+* Web ApiUrl – http://<your_lb_url>/api/todo
 
 ![Alt text](blog/testing_put.png?raw=true "Title")
 
@@ -245,7 +244,7 @@ Using CDK constructs, we have built the above infrastructure and integrated the 
 Let’s test the TODO API using any REST API tools, like Postman, Chrome extension ARC or RestMan.
 
 * GET – Open browser and you can hit the Web ApiUrl to see the data.
-    *  http://<your_ALB>.us-east-1.elb.amazonaws.com/api/todo
+    *  http://<your_lb_url>/api/todo
 * POST – Create a sample –
 
 Set Headers as “Content-type” & “application/json”
@@ -324,8 +323,7 @@ If you would like to do this manually, make sure the following resources are del
 * Go to “Resources” tab, select the s3 bucket
 * Select all the contents & delete the contents manually
 
-Above can be ran by below CLIs also
-
+cleanup can be done using the below CLI commands as well:
 
 * `$ cd aws-cdk-k8s-dotnet-todo\cdk8s`
 * `$ kubectl delete pods --all`
@@ -336,7 +334,8 @@ Above can be ran by below CLIs also
 
 ## Conclusion
 
-As you can see, we were able to onboard an ASP.NET Core Web API application and integrate it with various AWS Services. The post walked through deploying Microsoft .NET Core application code as containers with infrastructure as code using CDK and deploy the Kubernetes services, pods using CDK8s. To try out more CDK8s examples we encourage you try [various examples](https://github.com/awslabs/cdk8s/blob/master/examples/README.md), additionally for architecture as code with applications on AWS, check out [patterns](https://docs.aws.amazon.com/prescriptive-guidance/latest/patterns/deploy-kubernetes-resources-and-packages-using-amazon-eks-and-a-helm-chart-repository-in-amazon-s3.html), [AWS EKS Architecture](https://aws.amazon.com/quickstart/architecture/amazon-eks/) 
+As you can see, we were able to onboard an ASP.NET Core Web API application and integrate it with various AWS Services. The post walked through deploying Microsoft .NET Core application code as containers with infrastructure as code using CDK and deploy the Kubernetes services, pods using CDK8s. To try out more CDK8s examples we encourage you try [various examples](https://github.com/awslabs/cdk8s/blob/master/examples/README.md), additionally for architecture as code with applications on AWS, check out [patterns](https://docs.aws.amazon.com/prescriptive-guidance/latest/patterns/deploy-kubernetes-resources-and-packages-using-amazon-eks-and-a-helm-chart-repository-in-amazon-s3.html), [AWS EKS Architecture](https://aws.amazon.com/quickstart/architecture/amazon-eks/), [intent-driven APIs](https://aws.amazon.com/blogs/containers/introducing-cdk8s-intent-driven-apis-for-kubernetes-objects/) using [cdk8s+](https://github.com/awslabs/cdk8s/tree/master/packages/cdk8s-plus) for Kubernetes objects. cdk8s+ is a library built on top of cdk8s. It is a rich, intent-based class library for using the core Kubernetes API. It includes hand crafted constructs that map to native Kubernetes objects, and expose a richer API with reduced complexity.
+
 We encourage you to try this example and see for yourself how this overall application design works within AWS. Then, it will just be a matter of replacing your current applications (Web API, MVC, or other Microsoft .NET core application), package them as Docker containers and let the Amazon EKS manage the application efficiently.
 If you have any questions/feedback about this blog please provide your comments below!
 
