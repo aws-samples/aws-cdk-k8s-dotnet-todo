@@ -141,7 +141,7 @@ EksCdkStack.cdkeksConfigCommand415D5239 = aws eks update-kubeconfig --name cdkek
 **Step 2:** Steps to Build and push WebAPI into ECR (todo-app ECR repository created as part of above CDK infrastructure)
 
 
-* `$ cd aws-cdk-k8s-dotnet-todo\cdk`
+* `$ cd aws-cdk-k8s-dotnet-todo\webapi`
 * `$ dotnet build `
 
 * `$ aws ecr get-login-password --region $REGION | docker login --username AWS --password-stdin $ACCOUNT_NUMBER.dkr.ecr.$REGION.amazonaws.com`
@@ -260,7 +260,7 @@ Sample request:
 * Issues with running the installation/shell script
     * Windows users - Shell scripts by default opens in a new window and closes once done. To see the execution you can paste the contents in a windows CMD and run them
     * If you are deploying through the provided installation/cleanup scripts, make sure to have “chmod +x <file_name>.sh” or “chmod +777 <file_name>.sh” (similar to elevate the execution permission of the scripts)
-    * Linux Users - Permission issues could arise if you are not running as root user. you may have to “sudo su“ 
+    * Linux Users - Permission issues could arise if you are not running as root user. you may have to “sudo su“
 * Error retrieving pods/services/kubectl 
     * Make sure to update your kube config (This is an output from “cdk” deply in “run_infra.sh”)
         * aws eks update-kubeconfig —name <cluster-name>
