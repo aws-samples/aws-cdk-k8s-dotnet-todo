@@ -134,7 +134,7 @@ namespace EksCdk
             string[] taskDefinitionManagedRoleActions = new string[]{
               "AmazonRDSFullAccess",
               "AmazonSSMFullAccess",
-              "AmazonEC2ContainerServiceFullAccess",
+              "AmazonECS_FullAccess",
               "service-role/AmazonEC2ContainerServiceforEC2Role"
           };
           return taskDefinitionManagedRoleActions;
